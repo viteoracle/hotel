@@ -3,635 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Management Dashboard</title>
+    <title>Hotel Management Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles to complement Tailwind */
-        .sidebar {
-            transition: transform 0.3s ease-in-out;
+        body {
+            background: linear-gradient(to bottom right, #2c3e50, #3498db);
         }
-        .sidebar-hidden {
-            transform: translateX(-100%);
+        .login-card {
+            animation: fadeIn 0.5s ease-in-out;
         }
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0 !important;
-            }
-            .calendar-table td {
-                height: 80px;
-                font-size: 0.75rem;
-            }
-            .calendar-event {
-                font-size: 0.65rem;
-                padding: 1px 2px;
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @media (max-width: 480px) {
-            .room-status {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        @media (max-width: 640px) {
+            .login-card {
+                width: 90%;
             }
-            .overview-stats {
-                grid-template-columns: 1fr;
-            }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+            input, button {
+                font-size: 1rem;
             }
         }
     </style>
 </head>
-<body class="flex h-screen bg-gray-100 overflow-hidden">
-    <!-- Sidebar -->
-    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 bg-gray-800 text-white w-64 md:w-64 md:translate-x-0 sidebar-hidden md:sidebar-hidden transition-transform duration-300 z-20">
-        <div class="flex items-center p-4 border-b border-gray-700">
-            <i class="fas fa-hotel text-xl"></i>
-            <h2 class="ml-2 text-lg font-semibold">L&B Apartment</h2>
-            <button id="close-sidebar" class="md:hidden ml-auto text-white">
-                <i class="fas fa-times"></i>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="login-card bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div class="flex items-center justify-center mb-6">
+            <i class="fas fa-hotel text-3xl text-blue-500 mr-2"></i>
+            <h2 class="text-2xl font-bold text-gray-800">L&B Apartment</h2> 
+        </div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-6 text-center">Login</h3>
+        <div id="error-message" class="hidden text-red-500 text-sm mb-4 text-center"></div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-gray-700 font-medium mb-1" for="username">Username</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input
+                        type="text"
+                        id="username"
+                        class="w-full pl-10 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter username"
+                        required
+                    >
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium mb-1" for="password">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input
+                        type="password"
+                        id="password"
+                        class="w-full pl-10 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter password"
+                        required
+                    >
+                </div>
+            </div>
+            <button
+                id="login-btn"
+                class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center"
+            >
+                <i class="fas fa-sign-in-alt mr-2"></i> Login
             </button>
-        </div>
-        <div class="p-4">
-            <p class="text-xs uppercase text-gray-400 mb-2">Main Menu</p>
-            <ul>
-                <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent active" data-target="today-overview">
-                        <i class="fas fa-chart-line mr-2"></i>
-                        <span>Today Overview</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="room-status">
-                        <i class="fas fa-door-closed mr-2"></i>
-                        <span>Room Status</span>
-                        <i class="fas fa-angle-down ml-auto"></i>
-                    </a>
-                    <div class="pl-4 hidden">
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded" data-target="room-status">All Rooms</a>
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Available Rooms</a>
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Occupied Rooms</a>
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Maintenance</a>
-                    </div>
-                </li>
-                <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="calendar">
-                        <i class="fas fa-calendar-alt mr-2"></i>
-                        <span>Booking Calendar</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="guest-management">
-                        <i class="fas fa-users mr-2"></i>
-                        <span>Guest Management</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="booking.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="add-booking">
-                        <i class="fas fa-plus-circle mr-2"></i>
-                        <span>Add New Booking</span>
-                    </a>
-                </li>
-            </ul>
-            <p class="text-xs uppercase text-gray-400 mt-4 mb-2">Settings</p>
-            <ul>
-                <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="settings">
-                        <i class="fas fa-cog mr-2"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="profile">
-                        <i class="fas fa-user mr-2"></i>
-                        <span>Profile</span>
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="logout">
-                        <i class="fas fa-sign-out-alt mr-2"></i>
-                        <span>Logout</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="flex-1 p-4 md:ml-64 overflow-y-auto main-content">
-        <div class="flex justify-between items-center mb-4">
-            <button id="open-sidebar" class="md:hidden text-gray-800">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-            <h1 id="page-title" class="text-2xl font-bold text-gray-800">Today Overview</h1>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                <i class="fas fa-download mr-2"></i>Export Report
-            </button>
-        </div>
-
-        <!-- Today Overview -->
-        <div id="today-overview" class="page-content">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 overview-stats">
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-sign-in-alt text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">8</h3>
-                            <p class="text-gray-600">Check-ins Today</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-sign-out-alt text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">5</h3>
-                            <p class="text-gray-600">Check-outs Today</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-door-open text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">12</h3>
-                            <p class="text-gray-600">Available Rooms</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-dollar-sign text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">$3,850</h3>
-                            <p class="text-gray-600">Today's Revenue</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 dashboard-grid">
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h2 class="text-lg font-semibold mb-2">Today's Check-ins</h2>
-                    <table class="w-full guest-table">
-                        <thead>
-                            <tr class="bg-gray-800 text-white">
-                                <th class="p-2 text-left">Guest Name</th>
-                                <th class="p-2 text-left">Room</th>
-                                <th class="p-2 text-left">Time</th>
-                                <th class="p-2 text-left">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b">
-                                <td class="p-2">John Smith</td>
-                                <td class="p-2">101</td>
-                                <td class="p-2">10:00 AM</td>
-                                <td class="p-2"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Confirmed</span></td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2">Mary Johnson</td>
-                                <td class="p-2">205</td>
-                                <td class="p-2">12:30 PM</td>
-                                <td class="p-2"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Checked In</span></td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2">Robert Brown</td>
-                                <td class="p-2">310</td>
-                                <td class="p-2">2:00 PM</td>
-                                <td class="p-2"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-500">Pending</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h2 class="text-lg font-semibold mb-2">Today's Check-outs</h2>
-                    <table class="w-full guest-table">
-                        <thead>
-                            <tr class="bg-gray-800 text-white">
-                                <th class="p-2 text-left">Guest Name</th>
-                                <th class="p-2 text-left">Room</th>
-                                <th class="p-2 text-left">Time</th>
-                                <th class="p-2 text-left">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b">
-                                <td class="p-2">James Wilson</td>
-                                <td class="p-2">402</td>
-                                <td class="p-2">11:00 AM</td>
-                                <td class="p-2"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Checked Out</span></td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2">Susan Miller</td>
-                                <td class="p-2">207</td>
-                                <td class="p-2">12:00 PM</td>
-                                <td class="p-2"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-500">Pending</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room Status -->
-        <div id="room-status" class="page-content hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-bold text-gray-800">Room Status</h1>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    <i class="fas fa-filter mr-2"></i>Filter
-                </button>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 room-status">
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                    <div class="text-lg font-bold">101</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Available</span>
-                    <div class="mt-2 text-sm text-gray-600">King Bed</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-                    <div class="text-lg font-bold">102</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-500">Occupied</span>
-                    <div class="mt-2 text-sm text-gray-600">Smith Family</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                    <div class="text-lg font-bold">103</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Available</span>
-                    <div class="mt-2 text-sm text-gray-600">Double Bed</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-                    <div class="text-lg font-bold">104</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-500">Maintenance</span>
-                    <div class="mt-2 text-sm text-gray-600">Plumbing Issue</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-                    <div class="text-lg font-bold">201</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-500">Occupied</span>
-                    <div class="mt-2 text-sm text-gray-600">Johnson Party</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                    <div class="text-lg font-bold">202</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Available</span>
-                    <div class="mt-2 text-sm text-gray-600">Suite</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-                    <div class="text-lg font-bold">203</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-500">Occupied</span>
-                    <div class="mt-2 text-sm text-gray-600">Wilson Family</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                    <div class="text-lg font-bold">204</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Available</span>
-                    <div class="mt-2 text-sm text-gray-600">Twin Bed</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-                    <div class="text-lg font-bold">205</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-500">Maintenance</span>
-                    <div class="mt-2 text-sm text-gray-600">AC Repair</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                    <div class="text-lg font-bold">301</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Available</span>
-                    <div class="mt-2 text-sm text-gray-600">King Bed</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-                    <div class="text-lg font-bold">302</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-500">Occupied</span>
-                    <div class="mt-2 text-sm text-gray-600">Brown Party</div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                    <div class="text-lg font-bold">303</div>
-                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-500">Available</span>
-                    <div class="mt-2 text-sm text-gray-600">Queen Bed</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Calendar -->
-        <div id="calendar" class="page-content hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-bold text-gray-800">Booking Calendar</h1>
-                <div class="flex gap-2">
-                    <button class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"><i class="fas fa-chevron-left"></i></button>
-                    <button class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Today</button>
-                    <button class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"><i class="fas fa-chevron-right"></i></button>
-                </div>
-            </div>
-            <table class="w-full border-collapse calendar-table">
-                <thead>
-                    <tr class="bg-gray-800 text-white">
-                        <th class="p-2">Sunday</th>
-                        <th class="p-2">Monday</th>
-                        <th class="p-2">Tuesday</th>
-                        <th class="p-2">Wednesday</th>
-                        <th class="p-2">Thursday</th>
-                        <th class="p-2">Friday</th>
-                        <th class="p-2">Saturday</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">28</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 101: Smith</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">29</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 202: Johnson</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">30</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">1</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 303: Davis</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">2</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">3</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 205: Miller</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">4</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">5</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">6</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 101: Wilson</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">7</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">8</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 302: Brown</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">9</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">10</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">11</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 204: Taylor</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">12</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">13</div>
-                            <div class="text-blue-500 font-bold">Today</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 101: Smith</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 205: Johnson</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">14</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">15</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 303: White</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">16</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">17</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 101: Jones</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">18</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">19</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 202: Wilson</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">20</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">21</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">22</div>
-                            <div class="calendar-event bg-blue-500 text-white text-xs p-1 rounded mt-1">Room 303: Clark</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">23</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top">
-                            <div class="font-bold">24</div>
-                        </td>
-                        <td class="p-2 border h-24 align-top"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Guest Management -->
-        <div id="guest-management" class="page-content hidden">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">Guest Management</h1>
-            <table class="w-full border-collapse guest-table">
-                <thead>
-                    <tr class="bg-gray-800 text-white">
-                        <th class="p-2 text-left">Guest Name</th>
-                        <th class="p-2 text-left">Room</th>
-                        <th class="p-2 text-left">Check-in</th>
-                        <th class="p-2 text-left">Check-out</th>
-                        <th class="p-2 text-left">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2">John Smith</td>
-                        <td class="p-2">101</td>
-                        <td class="p-2">2025-05-12</td>
-                        <td class="p-2">2025-05-15</td>
-                        <td class="p-2">
-                            <button class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Edit</button>
-                            <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
-                        </td>
-                    </tr>
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2">Mary Johnson</td>
-                        <td class="p-2">205</td>
-                        <td class="p-2">2025-05-13</td>
-                        <td class="p-2">2025-05-17</td>
-                        <td class="p-2">
-                            <button class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Edit</button>
-                            <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
-                        </td>
-                    </tr>
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2">Robert Brown</td>
-                        <td class="p-2">310</td>
-                        <td class="p-2">2025-05-13</td>
-                        <td class="p-2">2025-05-16</td>
-                        <td class="p-2">
-                            <button class="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600">Edit</button>
-                            <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Add New Booking -->
-        <div id="add-booking" class="page-content hidden">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">Add New Booking</h1>
-            <button id="open-modal" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-blue-600">
-                <i class="fas fa-plus mr-2"></i>Open Booking Form
-            </button>
-        </div>
-
-        <!-- Modal -->
-        <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-            <div class="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold">New Booking</h2>
-                    <button id="close-modal" class="text-gray-600 hover:text-gray-800">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-medium mb-1">Guest Name</label>
-                        <input type="text" class="w-full p-2 border rounded" placeholder="Enter guest name">
-                    </div>
-                    <div class="mb-4">
-                       
-                        <select >
-                          <option value="">Select Apartment Number</option>
-                          <option value="101">101 - Standard (Available)</option>
-                          <option value="103">103 - Standard (Available)</option>
-                          <option value="202">202 - Deluxe (Available)</option>
-                          <option value="204">204 - Deluxe (Available)</option>
-                          <option value="301">301 - Suite (Available)</option>
-                          <option value="303">303 - Family (Available)</option>
-                      </select>
-                        <input type="text" class="w-full p-2 border rounded" placeholder="Enter room number">
-                    </div>
-                    <div class="mb-4">
-                      <label class="block text-gray-700 font-medium mb-1">Agent Name</label>
-                      <input type="text" class="w-full p-2 border rounded" placeholder="Enter guest name">
-                  </div>
-                  <div class="form-row">
-                    <div class="form-group">
-                        <label for="adults">Number of Adults *</label>
-                        <select id="adults" name="adults" class="form-control" required>
-                            <option value="1">1</option>
-                            <option value="2" selected>2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-4 mb-4">
-                        <div class="flex-1">
-                            <label class="block text-gray-700 font-medium mb-1">Check-in Date</label>
-                            <input type="date" class="w-full p-2 border rounded">
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-gray-700 font-medium mb-1">Check-out Date</label>
-                            <input type="date" class="w-full p-2 border rounded">
-                        </div>
-
-                    </div>
-                    <div class="flex justify-end gap-2">
-                        <button id="cancel-modal" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        // Sidebar toggle
-        const sidebar = document.getElementById('sidebar');
-        const openSidebarBtn = document.getElementById('open-sidebar');
-        const closeSidebarBtn = document.getElementById('close-sidebar');
+        const loginBtn = document.getElementById('login-btn');
+        const errorMessage = document.getElementById('error-message');
 
-        openSidebarBtn.addEventListener('click', () => {
-            sidebar.classList.remove('sidebar-hidden');
-        });
+        loginBtn.addEventListener('click', () => {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
 
-        closeSidebarBtn.addEventListener('click', () => {
-            sidebar.classList.add('sidebar-hidden');
-        });
+            // Hardcoded credentials for demo (replace with backend in production)
+            const validUsername = 'admin';
+            const validPassword = 'password123';
 
-        // Content switching
-        const menuItems = document.querySelectorAll('.menu-item');
-        const pageContents = document.querySelectorAll('.page-content');
-        const pageTitle = document.getElementById('page-title');
-
-        menuItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = item.getAttribute('data-target');
-                
-                // Update active menu item
-                menuItems.forEach(i => i.classList.remove('active', 'border-blue-500'));
-                item.classList.add('active', 'border-blue-500');
-
-                // Show/hide content
-                pageContents.forEach(content => content.classList.add('hidden'));
-                document.getElementById(target).classList.remove('hidden');
-
-                // Update page title
-                pageTitle.textContent = item.querySelector('span').textContent;
-
-                // Close sidebar on mobile after selection
-                if (window.innerWidth < 768) {
-                    sidebar.classList.add('sidebar-hidden');
-                }
-            });
-        });
-
-        // Dropdown toggle
-        const dropdownBtn = document.querySelector('.menu-item[data-target="room-status"]');
-        const dropdownContainer = dropdownBtn.nextElementSibling;
-        dropdownBtn.addEventListener('click', () => {
-            const isHidden = dropdownContainer.classList.contains('hidden');
-            dropdownContainer.classList.toggle('hidden', !isHidden);
-        });
-
-        // Modal handling
-        const openModalBtn = document.getElementById('open-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const cancelModalBtn = document.getElementById('cancel-modal');
-        const modal = document.getElementById('modal');
-
-        openModalBtn.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-        });
-
-        closeModalBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-
-        cancelModalBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-
-        // Close modal when clicking outside
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
+            if (username === validUsername && password === validPassword) {
+                // Redirect to dashboard with target section
+                window.location.href = 'index2.html?section=today-overview';
+            } else {
+                errorMessage.textContent = 'Invalid username or password';
+                errorMessage.classList.remove('hidden');
             }
+        });
+
+        // Clear error message on input
+        document.getElementById('username').addEventListener('input', () => {
+            errorMessage.classList.add('hidden');
+        });
+        document.getElementById('password').addEventListener('input', () => {
+            errorMessage.classList.add('hidden');
         });
     </script>
 </body>
