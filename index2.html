@@ -90,6 +90,7 @@
                         <span>Add New Booking</span>
                     </a>
                 </li>
+                
             </ul>
             <p class="text-xs uppercase text-gray-400 mt-4 mb-2">Settings</p>
             <ul>
@@ -100,11 +101,12 @@
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="profile">
+                    <a href="adduser.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent">
                         <i class="fas fa-user mr-2"></i>
                         <span>Profile</span>
                     </a>
                 </li>
+                
                 <li class="mb-1">
                     <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="logout">
                         <i class="fas fa-sign-out-alt mr-2"></i>
@@ -558,81 +560,74 @@
             </div>
         </div>
     </div>
-
     <script>
         // Sidebar toggle
         const sidebar = document.getElementById('sidebar');
         const openSidebarBtn = document.getElementById('open-sidebar');
         const closeSidebarBtn = document.getElementById('close-sidebar');
-
-        openSidebarBtn.addEventListener('click', () => {
+    
+        openSidebarBtn?.addEventListener('click', () => {
             sidebar.classList.remove('sidebar-hidden');
         });
-
-        closeSidebarBtn.addEventListener('click', () => {
+    
+        closeSidebarBtn?.addEventListener('click', () => {
             sidebar.classList.add('sidebar-hidden');
         });
-
+    
         // Content switching
         const menuItems = document.querySelectorAll('.menu-item');
         const pageContents = document.querySelectorAll('.page-content');
         const pageTitle = document.getElementById('page-title');
-
+    
         menuItems.forEach(item => {
             item.addEventListener('click', (e) => {
-                e.preventDefault();
                 const target = item.getAttribute('data-target');
-                
-                // Update active menu item
+    
+                // If item has an href that’s not "#", allow normal navigation
+                const href = item.getAttribute('href');
+                if (href && href !== '#') {
+                    return; // Let browser handle navigation
+                }
+    
+                e.preventDefault(); // Only prevent default for internal div switching
+    
+                // Switch visible content divs
+                pageContents.forEach(content => content.classList.add('hidden'));
+                const targetContent = document.getElementById(target);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                    pageTitle.textContent = item.querySelector('span')?.textContent || '';
+                }
+    
+                // Highlight active
                 menuItems.forEach(i => i.classList.remove('active', 'border-blue-500'));
                 item.classList.add('active', 'border-blue-500');
-
-                // Show/hide content
-                pageContents.forEach(content => content.classList.add('hidden'));
-                document.getElementById(target).classList.remove('hidden');
-
-                // Update page title
-                pageTitle.textContent = item.querySelector('span').textContent;
-
-                // Close sidebar on mobile after selection
+    
+                // Close sidebar on mobile
                 if (window.innerWidth < 768) {
                     sidebar.classList.add('sidebar-hidden');
                 }
             });
         });
-
+    
         // Dropdown toggle
         const dropdownBtn = document.querySelector('.menu-item[data-target="room-status"]');
-        const dropdownContainer = dropdownBtn.nextElementSibling;
-        dropdownBtn.addEventListener('click', () => {
+        const dropdownContainer = dropdownBtn?.nextElementSibling;
+        dropdownBtn?.addEventListener('click', (e) => {
+            e.preventDefault(); // Don’t navigate if it’s a dropdown
             const isHidden = dropdownContainer.classList.contains('hidden');
             dropdownContainer.classList.toggle('hidden', !isHidden);
         });
-
-        // Modal handling
-        const openModalBtn = document.getElementById('open-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const cancelModalBtn = document.getElementById('cancel-modal');
+    
+        // Modal
         const modal = document.getElementById('modal');
-
-        openModalBtn.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-        });
-
-        closeModalBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-
-        cancelModalBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-
-        // Close modal when clicking outside
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
-            }
+        document.getElementById('open-modal')?.addEventListener('click', () => modal?.classList.remove('hidden'));
+        document.getElementById('close-modal')?.addEventListener('click', () => modal?.classList.add('hidden'));
+        document.getElementById('cancel-modal')?.addEventListener('click', () => modal?.classList.add('hidden'));
+        modal?.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
         });
     </script>
+    
 </body>
 </html>
