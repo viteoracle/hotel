@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        header {
+            background-color: #003366;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav ul li {
+            margin-right: 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        h1 {
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .status-available {
+            background-color: #c8e6c9;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .status-occupied {
+            background-color: #ffcdd2;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .status-maintenance {
+            background-color: #fff9c4;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .cleaning-clean {
+            background-color: #c8e6c9;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .cleaning-pending {
+            background-color: #fff9c4;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .cleaning-dirty {
+            background-color: #ffcdd2;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .filters {
+            margin-bottom: 20px;
+        }
+        .filters select, .filters input {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .filters button {
+            padding: 8px 12px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .filters button:hover {
+            background-color: #002244;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Hotel Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="roomstatus.html">Room Status</a></li>
+                <li><a href="guestmanagement.html">Guest Management</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Room Status</h2>
+        
+        <div class="filters">
+            <select id="statusFilter">
+                <option value="all">All Statuses</option>
+                <option value="available">Available</option>
+                <option value="occupied">Occupied</option>
+                <option value="maintenance">Maintenance</option>
+            </select>
+            <select id="cleaningFilter">
+                <option value="all">All Cleaning Status</option>
+                <option value="clean">Clean</option>
+                <option value="pending">Pending</option>
+                <option value="dirty">Dirty</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="Search...">
+            <button id="resetFilters">Reset Filters</button>
+        </div>
+        
+        <table id="roomStatusTable">
+            <thead>
+                <tr>
+                    <th>Room Name</th>
+                    <th>Status</th>
+                    <th>Guest</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Cleaning Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table data will be dynamically populated with JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Sample data for room status
+        const roomStatusData = [
+            {
+                roomName: "101 - King Suite",
+                status: "occupied",
+                guest: "John Smith",
+                checkIn: "2025-05-10",
+                checkOut: "2025-05-15",
+                cleaningStatus: "clean"
+            },
+            {
+                roomName: "102 - Double Queen",
+                status: "available",
+                guest: "",
+                checkIn: "",
+                checkOut: "",
+                cleaningStatus: "clean"
+            },
+            {
+                roomName: "103 - Standard King",
+                status: "maintenance",
+                guest: "",
+                checkIn: "",
+                checkOut: "",
+                cleaningStatus: "pending"
+            },
+            {
+                roomName: "104 - King Suite",
+                status: "occupied",
+                guest: "Sarah Johnson",
+                checkIn: "2025-05-08",
+                checkOut: "2025-05-16",
+                cleaningStatus: "dirty"
+            },
+            {
+                roomName: "105 - Double Queen",
+                status: "available",
+                guest: "",
+                checkIn: "",
+                checkOut: "",
+                cleaningStatus: "clean"
+            },
+            {
+                roomName: "201 - Executive Suite",
+                status: "occupied",
+                guest: "Michael Brown",
+                checkIn: "2025-05-12",
+                checkOut: "2025-05-14",
+                cleaningStatus: "clean"
+            },
+            {
+                roomName: "202 - Standard King",
+                status: "available",
+                guest: "",
+                checkIn: "",
+                checkOut: "",
+                cleaningStatus: "pending"
+            },
+            {
+                roomName: "203 - Double Queen",
+                status: "available",
+                guest: "",
+                checkIn: "",
+                checkOut: "",
+                cleaningStatus: "clean"
+            }
+        ];
+
+        // Function to format dates for display
+        function formatDate(dateString) {
+            if (!dateString) return "";
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        // Function to populate the table
+        function populateTable(data) {
+            const tableBody = document.querySelector("#roomStatusTable tbody");
+            tableBody.innerHTML = "";
+
+            data.forEach(room => {
+                const row = document.createElement("tr");
+                
+                const statusClass = `status-${room.status}`;
+                const cleaningClass = `cleaning-${room.cleaningStatus}`;
+                
+                row.innerHTML = `
+                    <td>${room.roomName}</td>
+                    <td><span class="${statusClass}">${room.status.charAt(0).toUpperCase() + room.status.slice(1)}</span></td>
+                    <td>${room.guest || "-"}</td>
+                    <td>${formatDate(room.checkIn) || "-"}</td>
+                    <td>${formatDate(room.checkOut) || "-"}</td>
+                    <td><span class="${cleaningClass}">${room.cleaningStatus.charAt(0).toUpperCase() + room.cleaningStatus.slice(1)}</span></td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter function
+        function filterRooms() {
+            const statusFilter = document.getElementById("statusFilter").value;
+            const cleaningFilter = document.getElementById("cleaningFilter").value;
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+
+            const filteredData = roomStatusData.filter(room => {
+                // Status filter
+                if (statusFilter !== "all" && room.status !== statusFilter) {
+                    return false;
+                }
+                
+                // Cleaning status filter
+                if (cleaningFilter !== "all" && room.cleaningStatus !== cleaningFilter) {
+                    return false;
+                }
+                
+                // Search filter
+                const searchFields = [
+                    room.roomName.toLowerCase(),
+                    room.guest.toLowerCase(),
+                    room.status.toLowerCase(),
+                    room.cleaningStatus.toLowerCase()
+                ];
+                
+                return searchTerm === "" || searchFields.some(field => field.includes(searchTerm));
+            });
+
+            populateTable(filteredData);
+        }
+
+        // Event listeners for filter controls
+        document.getElementById("statusFilter").addEventListener("change", filterRooms);
+        document.getElementById("cleaningFilter").addEventListener("change", filterRooms);
+        document.getElementById("searchInput").addEventListener("input", filterRooms);
+        document.getElementById("resetFilters").addEventListener("click", function() {
+            document.getElementById("statusFilter").value = "all";
+            document.getElementById("cleaningFilter").value = "all";
+            document.getElementById("searchInput").value = "";
+            filterRooms();
+        });
+
+        // Initialize the table
+        document.addEventListener("DOMContentLoaded", function() {
+            populateTable(roomStatusData);
+        });
+    </script>
+</body>
+</html>
