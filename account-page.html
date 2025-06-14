@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management Dashboard - Account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to complement Tailwind */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+            }
+            .calendar-table td {
+                height: 80px;
+                font-size: 0.75rem;
+            }
+            .calendar-event {
+                font-size: 0.65rem;
+                padding: 1px 2px;
+            }
+        }
+        @media (max-width: 480px) {
+            .room-status {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            .overview-stats {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="flex h-screen bg-gray-100 overflow-hidden">
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 bg-gray-800 text-white w-64 md:w-64 md:translate-x-0 sidebar-hidden md:sidebar-hidden transition-transform duration-300 z-20">
+        <div class="flex items-center p-4 border-b border-gray-700">
+            <i class="fas fa-hotel text-xl"></i>
+            <h2 class="ml-2 text-lg font-semibold">Trilogy_Homes</h2>
+            <button id="close-sidebar" class="md:hidden ml-auto text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4">
+            <p class="text-xs uppercase text-gray-400 mb-2">Main Menu</p>
+            <ul>
+                <li class="mb-1">
+                    <a href="index2.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="today-overview">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        <span>Today Overview</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="room-status">
+                        <i class="fas fa-door-closed mr-2"></i>
+                        <span>Room Status</span>
+                        <i class="fas fa-angle-down ml-auto"></i>
+                    </a>
+                    <div class="pl-4 hidden">
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded" data-target="room-status">All Rooms</a>
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Available Rooms</a>
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Occupied Rooms</a>
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Maintenance</a>
+                    </div>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="calendar">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        <span>Booking Calendar</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="guest-management">
+                        <i class="fas fa-users mr-2"></i>
+                        <span>Guest Management</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="booking.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="add-booking">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        <span>Add New Booking</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="car-rental.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="add-booking">
+                        <i class="fas fa-car mr-2"></i>
+                        <span>Car New Booking</span>
+                    </a>
+                </li>
+            </ul>
+            <p class="text-xs uppercase text-gray-400 mt-4 mb-2">Settings</p>
+            <ul>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="settings">
+                        <i class="fas fa-cog mr-2"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="adduser.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent">
+                        <i class="fas fa-user mr-2"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="account-page.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent active" data-target="account">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span>Account</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="logout">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-4 md:ml-64 overflow-y-auto main-content">
+        <div class="flex justify-between items-center mb-4">
+            <button id="open-sidebar" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 id="page-title" class="text-2xl font-bold text-gray-800">Account</h1>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <i class="fas fa-download mr-2"></i>Export Report
+            </button>
+        </div>
+
+        <!-- Account Overview -->
+        <div id="account" class="page-content">
+            <div class="bg-white p-4 rounded-lg shadow mb-4">
+                <h2 class="text-lg font-semibold mb-4">Financial Overview</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>Total Revenue (₦):</strong> <span id="total-revenue">0</span></div>
+                    <div><strong>Total Expenses (₦):</strong> <span id="total-expenses">0</span></div>
+                    <div><strong>Net Profit (₦):</strong> <span id="net-profit">0</span></div>
+                    <div><strong>Cash Balance (₦):</strong> <span id="cash-balance">0</span></div>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-4">Transaction Log</h2>
+                <table class="w-full border-collapse guest-table">
+                    <thead>
+                        <tr class="bg-gray-800 text-white">
+                            <th class="p-2 text-left">Date</th>
+                            <th class="p-2 text-left">Type</th>
+                            <th class="p-2 text-left">Description</th>
+                            <th class="p-2 text-left">Amount (₦)</th>
+                            <th class="p-2 text-left">User</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-log">
+                        <!-- Dynamic rows will be added here -->
+                    </tbody>
+                </table>
+                <button id="add-transaction" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add Transaction</button>
+            </div>
+
+            <!-- Add Transaction Modal -->
+            <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold">Add Transaction</h2>
+                        <button id="close-modal" class="text-gray-600 hover:text-gray-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-1">Transaction Type</label>
+                        <select id="trans-type" class="w-full p-2 border rounded">
+                            <option value="revenue">Revenue</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-1">Description</label>
+                        <input type="text" id="trans-description" class="w-full p-2 border rounded" placeholder="Enter description">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-1">Amount (₦)</label>
+                        <input type="number" id="trans-amount" class="w-full p-2 border rounded" placeholder="Enter amount" min="0">
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button id="cancel-modal" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+                        <button id="save-transaction" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Statements -->
+            <div class="mt-4 bg-white p-4 rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-4">Financial Statements</h2>
+                <button id="view-balance-sheet" class="mr-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Balance Sheet</button>
+                <button id="view-profit-loss" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Profit & Loss</button>
+                <div id="financial-statement" class="mt-4 hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('open-sidebar');
+        const closeSidebarBtn = document.getElementById('close-sidebar');
+
+        openSidebarBtn?.addEventListener('click', () => {
+            sidebar.classList.remove('sidebar-hidden');
+        });
+
+        closeSidebarBtn?.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+        });
+
+        // Content switching
+        const menuItems = document.querySelectorAll('.menu-item');
+        const pageContents = document.querySelectorAll('.page-content');
+        const pageTitle = document.getElementById('page-title');
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const target = item.getAttribute('data-target');
+
+                // If item has an href that’s not "#", allow normal navigation
+                const href = item.getAttribute('href');
+                if (href && href !== '#') {
+                    return; // Let browser handle navigation
+                }
+
+                e.preventDefault(); // Only prevent default for internal div switching
+
+                // Switch visible content divs
+                pageContents.forEach(content => content.classList.add('hidden'));
+                const targetContent = document.getElementById(target);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                    pageTitle.textContent = item.querySelector('span')?.textContent || '';
+                }
+
+                // Highlight active
+                menuItems.forEach(i => i.classList.remove('active', 'border-blue-500'));
+                item.classList.add('active', 'border-blue-500');
+
+                // Close sidebar on mobile
+                if (window.innerWidth < 768) {
+                    sidebar.classList.add('sidebar-hidden');
+                }
+            });
+        });
+
+        // Dropdown toggle
+        const dropdownBtn = document.querySelector('.menu-item[data-target="room-status"]');
+        const dropdownContainer = dropdownBtn?.nextElementSibling;
+        dropdownBtn?.addEventListener('click', (e) => {
+            e.preventDefault(); // Don’t navigate if it’s a dropdown
+            const isHidden = dropdownContainer.classList.contains('hidden');
+            dropdownContainer.classList.toggle('hidden', !isHidden);
+        });
+
+        // Transaction Management
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        const transactionLog = document.getElementById('transaction-log');
+        const addTransactionBtn = document.getElementById('add-transaction');
+        const modal = document.getElementById('modal');
+        const transType = document.getElementById('trans-type');
+        const transDescription = document.getElementById('trans-description');
+        const transAmount = document.getElementById('trans-amount');
+        const saveTransactionBtn = document.getElementById('save-transaction');
+        const cancelModalBtn = document.getElementById('cancel-modal');
+        const totalRevenue = document.getElementById('total-revenue');
+        const totalExpenses = document.getElementById('total-expenses');
+        const netProfit = document.getElementById('net-profit');
+        const cashBalance = document.getElementById('cash-balance');
+        const financialStatement = document.getElementById('financial-statement');
+        const viewBalanceSheetBtn = document.getElementById('view-balance-sheet');
+        const viewProfitLossBtn = document.getElementById('view-profit-loss');
+
+        function updateTransactionLog() {
+            transactionLog.innerHTML = '';
+            transactions.forEach((trans, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'hover:bg-gray-50');
+                row.innerHTML = `
+                    <td class="p-2">${trans.date}</td>
+                    <td class="p-2">${trans.type}</td>
+                    <td class="p-2">${trans.description}</td>
+                    <td class="p-2">₦${trans.amount.toLocaleString()}</td>
+                    <td class="p-2">${trans.user}</td>
+                `;
+                transactionLog.appendChild(row);
+            });
+        }
+
+        function updateFinancials() {
+            const revenue = transactions.filter(t => t.type === 'revenue').reduce((sum, t) => sum + t.amount, 0);
+            const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const profit = revenue - expenses;
+            const balance = 1000000 - expenses + revenue; // Initial cash balance of ₦1,000,000 for demo
+
+            totalRevenue.textContent = revenue.toLocaleString();
+            totalExpenses.textContent = expenses.toLocaleString();
+            netProfit.textContent = profit.toLocaleString();
+            cashBalance.textContent = balance.toLocaleString();
+        }
+
+        addTransactionBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        saveTransactionBtn.addEventListener('click', () => {
+            const type = transType.value;
+            const description = transDescription.value;
+            const amount = parseFloat(transAmount.value) || 0;
+            if (description && amount > 0) {
+                const trans = {
+                    date: new Date().toISOString().split('T')[0],
+                    type,
+                    description,
+                    amount,
+                    user: 'admin' // Hardcoded; use logged-in user in production
+                };
+                transactions.push(trans);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                updateTransactionLog();
+                updateFinancials();
+                modal.classList.add('hidden');
+                transDescription.value = '';
+                transAmount.value = '';
+            }
+        });
+        cancelModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+
+        // Financial Statements
+        viewBalanceSheetBtn.addEventListener('click', () => {
+            const balance = 1000000; // Initial assets
+            const liabilities = 500000; // Initial loan
+            const equity = balance - liabilities;
+            financialStatement.innerHTML = `
+                <h3 class="text-md font-semibold mb-2">Balance Sheet (as of ${new Date().toLocaleDateString()})</h3>
+                <p>Assets: ₦${balance.toLocaleString()}</p>
+                <p>Liabilities: ₦${liabilities.toLocaleString()}</p>
+                <p>Equity: ₦${equity.toLocaleString()}</p>
+            `;
+            financialStatement.classList.remove('hidden');
+        });
+
+        viewProfitLossBtn.addEventListener('click', () => {
+            const revenue = transactions.filter(t => t.type === 'revenue').reduce((sum, t) => sum + t.amount, 0);
+            const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const profit = revenue - expenses;
+            financialStatement.innerHTML = `
+                <h3 class="text-md font-semibold mb-2">Profit & Loss (as of ${new Date().toLocaleDateString()})</h3>
+                <p>Revenue: ₦${revenue.toLocaleString()}</p>
+                <p>Expenses: ₦${expenses.toLocaleString()}</p>
+                <p>Net Profit: ₦${profit.toLocaleString()}</p>
+            `;
+            financialStatement.classList.remove('hidden');
+        });
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTransactionLog();
+            updateFinancials();
+        });
+    </script>
+</body>
+</html>

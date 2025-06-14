@@ -6,6 +6,7 @@
     <title>Hotel Management Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Custom styles to complement Tailwind */
         .sidebar {
@@ -13,6 +14,58 @@
         }
         .sidebar-hidden {
             transform: translateX(-100%);
+        }
+        .dark-mode {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark-mode .bg-white {
+            background-color: #2d3748;
+        }
+        .dark-mode .text-gray-800 {
+            color: #e2e8f0;
+        }
+        .dark-mode .text-gray-600 {
+            color: #a0aec0;
+        }
+        .dark-mode .bg-gray-800 {
+            background-color: #4a5568;
+        }
+        .dark-mode .bg-gray-100 {
+            background-color: #2d3748;
+        }
+        .dark-mode .bg-blue-500 {
+            background-color: #63b3ed;
+        }
+        .dark-mode .hover:bg-blue-600 {
+            background-color: #4299e1;
+        }
+        .dark-mode .border-gray-700 {
+            border-color: #4a5568;
+        }
+        .notification-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            min-width: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 50;
+        }
+        .dark-mode .notification-dropdown {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+        .notification-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dark-mode .notification-item {
+            border-bottom-color: #4a5568;
         }
         @media (max-width: 768px) {
             .main-content {
@@ -45,7 +98,7 @@
     <div id="sidebar" class="sidebar fixed inset-y-0 left-0 bg-gray-800 text-white w-64 md:w-64 md:translate-x-0 sidebar-hidden md:sidebar-hidden transition-transform duration-300 z-20">
         <div class="flex items-center p-4 border-b border-gray-700">
             <i class="fas fa-hotel text-xl"></i>
-            <h2 class="ml-2 text-lg font-semibold">L&B Apartment</h2>
+            <h2 class="ml-2 text-lg font-semibold">Trilogy_Homes</h2>
             <button id="close-sidebar" class="md:hidden ml-auto text-white">
                 <i class="fas fa-times"></i>
             </button>
@@ -54,7 +107,7 @@
             <p class="text-xs uppercase text-gray-400 mb-2">Main Menu</p>
             <ul>
                 <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent active" data-target="today-overview">
+                    <a href="index2.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent active" data-target="today-overview">
                         <i class="fas fa-chart-line mr-2"></i>
                         <span>Today Overview</span>
                     </a>
@@ -90,7 +143,12 @@
                         <span>Add New Booking</span>
                     </a>
                 </li>
-                
+                <li class="mb-1">
+                    <a href="car-rental.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="add-booking">
+                        <i class="fas fa-car mr-2"></i>
+                        <span>Car New Booking</span>
+                    </a>
+                </li>
             </ul>
             <p class="text-xs uppercase text-gray-400 mt-4 mb-2">Settings</p>
             <ul>
@@ -106,7 +164,12 @@
                         <span>Profile</span>
                     </a>
                 </li>
-                
+                <li class="mb-1">
+                    <a href="account-page.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="logout">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span>Account</span>
+                    </a>
+                </li>
                 <li class="mb-1">
                     <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="logout">
                         <i class="fas fa-sign-out-alt mr-2"></i>
@@ -119,14 +182,35 @@
 
     <!-- Main Content -->
     <div class="flex-1 p-4 md:ml-64 overflow-y-auto main-content">
+        <!-- Notification Bar -->
+        <div id="notification-bar" class="fixed top-0 left-0 w-full bg-green-500 text-white p-2 text-center hidden z-50"></div>
+
         <div class="flex justify-between items-center mb-4">
             <button id="open-sidebar" class="md:hidden text-gray-800">
                 <i class="fas fa-bars text-xl"></i>
             </button>
             <h1 id="page-title" class="text-2xl font-bold text-gray-800">Today Overview</h1>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                <i class="fas fa-download mr-2"></i>Export Report
-            </button>
+            
+            <div class="relative">
+                <div class="relative">
+                    <button id="notification-icon" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 relative">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <div id="notification-dropdown" class="notification-dropdown">
+                        <!-- Messages will be appended here -->
+                    </div>
+                </div>
+                <button id="export-report" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">
+                    <i class="fas fa-download mr-2"></i>Export Report
+                    
+                </button>
+                
+                <button id="toggle-dark-mode" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 mr-2">
+                    <i class="fas fa-moon"></i> Dark Mode
+                </button>
+                
+            </div>
         </div>
 
         <!-- Today Overview -->
@@ -237,6 +321,26 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-2">Booking Progress (Histogram)</h2>
+                    <canvas id="bookingHistogram"></canvas>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-2">Booking Distribution (Pie Chart)</h2>
+                    <canvas id="bookingPieChart"></canvas>
+                </div>
+            </div>
+            <!-- Chat Box -->
+            <div class="bg-white p-4 rounded-lg shadow mt-4">
+                <h2 class="text-lg font-semibold mb-2">Chat</h2>
+                <div class="mb-4">
+                    <input type="text" id="chat-sender" class="w-full p-2 border rounded mb-2" placeholder="Your Name">
+                    <textarea id="chat-message" class="w-full p-2 border rounded mb-2" placeholder="Type your message..." rows="3"></textarea>
+                    <button id="send-message" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send</button>
                 </div>
             </div>
         </div>
@@ -515,8 +619,7 @@
                         <input type="text" class="w-full p-2 border rounded" placeholder="Enter guest name">
                     </div>
                     <div class="mb-4">
-                       
-                        <select >
+                        <select>
                           <option value="">Select Apartment Number</option>
                           <option value="101">101 - Standard (Available)</option>
                           <option value="103">103 - Standard (Available)</option>
@@ -525,7 +628,6 @@
                           <option value="301">301 - Suite (Available)</option>
                           <option value="303">303 - Family (Available)</option>
                       </select>
-                        <input type="text" class="w-full p-2 border rounded" placeholder="Enter room number">
                     </div>
                     <div class="mb-4">
                       <label class="block text-gray-700 font-medium mb-1">Agent Name</label>
@@ -550,7 +652,6 @@
                             <label class="block text-gray-700 font-medium mb-1">Check-out Date</label>
                             <input type="date" class="w-full p-2 border rounded">
                         </div>
-
                     </div>
                     <div class="flex justify-end gap-2">
                         <button id="cancel-modal" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
@@ -560,65 +661,62 @@
             </div>
         </div>
     </div>
+
     <script>
         // Sidebar toggle
         const sidebar = document.getElementById('sidebar');
         const openSidebarBtn = document.getElementById('open-sidebar');
         const closeSidebarBtn = document.getElementById('close-sidebar');
-    
+
         openSidebarBtn?.addEventListener('click', () => {
             sidebar.classList.remove('sidebar-hidden');
         });
-    
+
         closeSidebarBtn?.addEventListener('click', () => {
             sidebar.classList.add('sidebar-hidden');
         });
-    
+
         // Content switching
         const menuItems = document.querySelectorAll('.menu-item');
         const pageContents = document.querySelectorAll('.page-content');
         const pageTitle = document.getElementById('page-title');
-    
+
         menuItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 const target = item.getAttribute('data-target');
-    
-                // If item has an href that’s not "#", allow normal navigation
+
                 const href = item.getAttribute('href');
                 if (href && href !== '#') {
-                    return; // Let browser handle navigation
+                    return;
                 }
-    
-                e.preventDefault(); // Only prevent default for internal div switching
-    
-                // Switch visible content divs
+
+                e.preventDefault();
+
                 pageContents.forEach(content => content.classList.add('hidden'));
                 const targetContent = document.getElementById(target);
                 if (targetContent) {
                     targetContent.classList.remove('hidden');
                     pageTitle.textContent = item.querySelector('span')?.textContent || '';
                 }
-    
-                // Highlight active
+
                 menuItems.forEach(i => i.classList.remove('active', 'border-blue-500'));
                 item.classList.add('active', 'border-blue-500');
-    
-                // Close sidebar on mobile
+
                 if (window.innerWidth < 768) {
                     sidebar.classList.add('sidebar-hidden');
                 }
             });
         });
-    
+
         // Dropdown toggle
         const dropdownBtn = document.querySelector('.menu-item[data-target="room-status"]');
         const dropdownContainer = dropdownBtn?.nextElementSibling;
         dropdownBtn?.addEventListener('click', (e) => {
-            e.preventDefault(); // Don’t navigate if it’s a dropdown
+            e.preventDefault();
             const isHidden = dropdownContainer.classList.contains('hidden');
             dropdownContainer.classList.toggle('hidden', !isHidden);
         });
-    
+
         // Modal
         const modal = document.getElementById('modal');
         document.getElementById('open-modal')?.addEventListener('click', () => modal?.classList.remove('hidden'));
@@ -627,7 +725,132 @@
         modal?.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.add('hidden');
         });
+
+        // Dark Mode
+        const toggleDarkModeBtn = document.getElementById('toggle-dark-mode');
+        toggleDarkModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            toggleDarkModeBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+        });
+
+        // Charts
+        const bookingHistogram = document.getElementById('bookingHistogram').getContext('2d');
+        const bookingPieChart = document.getElementById('bookingPieChart').getContext('2d');
+
+        // Simulated booking data for 2025
+        const bookings = [
+            { month: 'January', apartment: 10, car: 5 },
+            { month: 'February', apartment: 12, car: 6 },
+            { month: 'March', apartment: 15, car: 8 },
+            { month: 'April', apartment: 18, car: 10 },
+            { month: 'May', apartment: 20, car: 12 },
+            { month: 'June', apartment: 8, car: 4 } // Up to June 15, 2025
+        ];
+
+        new Chart(bookingHistogram, {
+            type: 'bar',
+            data: {
+                labels: bookings.map(b => b.month),
+                datasets: [
+                    {
+                        label: 'Apartment Bookings',
+                        data: bookings.map(b => b.apartment),
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Car Bookings',
+                        data: bookings.map(b => b.car),
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+
+        const totalApartment = bookings.reduce((sum, b) => sum + b.apartment, 0);
+        const totalCar = bookings.reduce((sum, b) => sum + b.car, 0);
+        const totalBookings = totalApartment + totalCar;
+
+        new Chart(bookingPieChart, {
+            type: 'pie',
+            data: {
+                labels: ['Apartment', 'Car'],
+                datasets: [{
+                    data: [totalApartment, totalCar],
+                    backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)']
+                }]
+            },
+            options: {
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+
+        // Chat and Notification
+        const notificationBar = document.getElementById('notification-bar');
+        const chatSender = document.getElementById('chat-sender');
+        const chatMessage = document.getElementById('chat-message');
+        const sendMessageBtn = document.getElementById('send-message');
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationBadge = document.getElementById('notification-badge');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+
+        let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+        let unreadCount = 0;
+
+        function updateNotifications() {
+            notificationDropdown.innerHTML = '';
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'notification-item';
+                div.textContent = `${msg.sender} (${msg.timestamp}): ${msg.message}`;
+                notificationDropdown.appendChild(div);
+            });
+            unreadCount = messages.length; // Simple unread count; refine with read status if needed
+            notificationBadge.textContent = unreadCount;
+            notificationBadge.classList.toggle('hidden', unreadCount === 0);
+        }
+
+        sendMessageBtn.addEventListener('click', () => {
+            const sender = chatSender.value.trim();
+            const message = chatMessage.value.trim();
+            if (sender && message) {
+                const now = new Date();
+                const timestamp = now.toLocaleTimeString();
+                const newMessage = { sender, message, timestamp };
+                messages.push(newMessage);
+                localStorage.setItem('chatMessages', JSON.stringify(messages));
+                updateNotifications();
+                notificationBar.textContent = `${sender} (${timestamp}): ${message}`;
+                notificationBar.classList.remove('hidden');
+                setTimeout(() => notificationBar.classList.add('hidden'), 5000);
+                chatSender.value = '';
+                chatMessage.value = '';
+            }
+        });
+
+        notificationIcon.addEventListener('click', () => {
+            notificationDropdown.style.display = notificationDropdown.style.display === 'block' ? 'none' : 'block';
+            if (unreadCount > 0) {
+                unreadCount = 0; // Mark as read on click
+                notificationBadge.classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!notificationIcon.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.style.display = 'none';
+            }
+        });
+
+        // Load existing messages
+        document.addEventListener('DOMContentLoaded', updateNotifications);
     </script>
-    
 </body>
 </html>

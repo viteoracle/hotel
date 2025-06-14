@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Management Dashboard - Car Rental</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to complement Tailwind */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+            }
+            .calendar-table td {
+                height: 80px;
+                font-size: 0.75rem;
+            }
+            .calendar-event {
+                font-size: 0.65rem;
+                padding: 1px 2px;
+            }
+        }
+        @media (max-width: 480px) {
+            .room-status {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            .overview-stats {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="flex h-screen bg-gray-100 overflow-hidden">
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 bg-gray-800 text-white w-64 md:w-64 md:translate-x-0 sidebar-hidden md:sidebar-hidden transition-transform duration-300 z-20">
+        <div class="flex items-center p-4 border-b border-gray-700">
+            <i class="fas fa-hotel text-xl"></i>
+            <h2 class="ml-2 text-lg font-semibold">L&B Apartment</h2>
+            <button id="close-sidebar" class="md:hidden ml-auto text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-4">
+            <p class="text-xs uppercase text-gray-400 mb-2">Main Menu</p>
+            <ul>
+                <li class="mb-1">
+                    <a href="index2.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent active" data-target="today-overview">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        <span>Today Overview</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="room-status">
+                        <i class="fas fa-door-closed mr-2"></i>
+                        <span>Room Status</span>
+                        <i class="fas fa-angle-down ml-auto"></i>
+                    </a>
+                    <div class="pl-4 hidden">
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded" data-target="room-status">All Rooms</a>
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Available Rooms</a>
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Occupied Rooms</a>
+                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Maintenance</a>
+                    </div>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="calendar">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        <span>Booking Calendar</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="guest-management">
+                        <i class="fas fa-users mr-2"></i>
+                        <span>Guest Management</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="booking.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="add-booking">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        <span>Add New Booking</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="car-rental.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent active" data-target="car-rental">
+                        <i class="fas fa-car mr-2"></i>
+                        <span>Car Rental</span>
+                    </a>
+                </li>
+            </ul>
+            <p class="text-xs uppercase text-gray-400 mt-4 mb-2">Settings</p>
+            <ul>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="settings">
+                        <i class="fas fa-cog mr-2"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="adduser.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent">
+                        <i class="fas fa-user mr-2"></i>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="logout">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-4 md:ml-64 overflow-y-auto main-content">
+        <div class="flex justify-between items-center mb-4">
+            <button id="open-sidebar" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 id="page-title" class="text-2xl font-bold text-gray-800">Car Rental</h1>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <i class="fas fa-download mr-2"></i>Export Report
+            </button>
+        </div>
+
+        <!-- Car Rental -->
+        <div id="car-rental" class="page-content">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-4">Book a Car</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Customer Name</label>
+                    <input type="text" id="customerName" class="w-full p-2 border rounded" placeholder="Enter customer name" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Contact Number</label>
+                    <input type="tel" id="contactNumber" class="w-full p-2 border rounded" placeholder="Enter contact number" pattern="[0-9]{10}" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Select Car</label>
+                    <select id="carType" class="w-full p-2 border rounded" required>
+                        <option value="">Select Car</option>
+                        <option value="sedan">Toyotal Camry </option>
+                        <option value="suv">Prado SUV </option>
+                        <option value="luxury">Roll-Royce </option>
+                    </select>
+                </div>
+                <div class="flex gap-4 mb-4">
+                    <div class="flex-1">
+                        <label class="block text-gray-700 font-medium mb-1">Start Time</label>
+                        <input type="time" id="startTime" class="w-full p-2 border rounded" min="07:00" max="23:00" required>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-gray-700 font-medium mb-1">End Time</label>
+                        <input type="time" id="endTime" class="w-full p-2 border rounded" min="07:00" max="23:00" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Booking Date</label>
+                    <input type="date" id="bookingDate" class="w-full p-2 border rounded" value="2025-06-14" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Services</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="nightPickup" class="mr-2" value="75000">
+                            <span>Night Pickup & Hotel Drop-off (₦75,000)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="pradoService" class="mr-2" value="130000">
+                            <span>12 Hours Prado Transport Service (₦130,000)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="policeEscort" class="mr-2" value="30000">
+                            <span>Police Escort (₦30,000)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Payment Method</label>
+                    <select id="paymentMethod" class="w-full p-2 border rounded" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="cash">Cash</option>
+                        <option value="transfer">Transfer</option>
+                        <option value="pos">POS</option>
+                    </select>
+                </div>
+                <button id="book-car" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Book Car</button>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="mt-4 bg-white p-4 rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-4">Current Bookings</h2>
+                <table class="w-full border-collapse guest-table">
+                    <thead>
+                        <tr class="bg-gray-800 text-white">
+                            <th class="p-2 text-left">Customer Name</th>
+                            <th class="p-2 text-left">Contact</th>
+                            <th class="p-2 text-left">Car Type</th>
+                            <th class="p-2 text-left">Start Time</th>
+                            <th class="p-2 text-left">End Time</th>
+                            <th class="p-2 text-left">Date</th>
+                            <th class="p-2 text-left">Services</th>
+                            <th class="p-2 text-left">Total Price (₦)</th>
+                            <th class="p-2 text-left">Payment Method</th>
+                            <th class="p-2 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsBody">
+                        <!-- Dynamic rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal for Booking Result -->
+        <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">Booking Result</h2>
+                    <button id="close-modal" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modalMessage" class="mb-4">
+                    <!-- Message will be inserted here -->
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button id="cancel-modal" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Admin Authorization -->
+        <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">Admin Authorization</h2>
+                    <button id="close-admin-modal" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Admin Password</label>
+                    <input type="password" id="adminPassword" class="w-full p-2 border rounded" placeholder="Enter admin password" required>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button id="cancel-admin-modal" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+                    <button id="confirm-cancel" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Confirm Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('open-sidebar');
+        const closeSidebarBtn = document.getElementById('close-sidebar');
+
+        openSidebarBtn?.addEventListener('click', () => {
+            sidebar.classList.remove('sidebar-hidden');
+        });
+
+        closeSidebarBtn?.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+        });
+
+        // Content switching
+        const menuItems = document.querySelectorAll('.menu-item');
+        const pageContents = document.querySelectorAll('.page-content');
+        const pageTitle = document.getElementById('page-title');
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const target = item.getAttribute('data-target');
+                const href = item.getAttribute('href');
+                if (href && href !== '#') {
+                    return;
+                }
+                e.preventDefault();
+                pageContents.forEach(content => content.classList.add('hidden'));
+                const targetContent = document.getElementById(target);
+                if (targetContent) {
+                    targetContent.classList.remove('hidden');
+                    pageTitle.textContent = item.querySelector('span')?.textContent || '';
+                }
+                menuItems.forEach(i => i.classList.remove('active', 'border-blue-500'));
+                item.classList.add('active', 'border-blue-500');
+                if (window.innerWidth < 768) {
+                    sidebar.classList.add('sidebar-hidden');
+                }
+            });
+        });
+
+        // Dropdown toggle
+        const dropdownBtn = document.querySelector('.menu-item[data-target="room-status"]');
+        const dropdownContainer = dropdownBtn?.nextElementSibling;
+        dropdownBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isHidden = dropdownContainer.classList.contains('hidden');
+            dropdownContainer.classList.toggle('hidden', !isHidden);
+        });
+
+        // Car Rental Logic
+        let bookings = JSON.parse(localStorage.getItem('carBookings')) || [];
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeModalBtn = document.getElementById('close-modal');
+        const cancelModalBtn = document.getElementById('cancel-modal');
+        const bookCarBtn = document.getElementById('book-car');
+        const bookingsBody = document.getElementById('bookingsBody');
+        const adminModal = document.getElementById('adminModal');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const closeAdminModalBtn = document.getElementById('close-admin-modal');
+        const cancelAdminModalBtn = document.getElementById('cancel-admin-modal');
+        const confirmCancelBtn = document.getElementById('confirm-cancel');
+        let cancelIndex = -1;
+
+        // Current date and time (11:41 PM WAT, Saturday, June 14, 2025)
+        const currentDate = new Date('2025-06-14T23:41:00+01:00');
+        const currentHour = currentDate.getHours();
+
+        // Car base rates (per hour)
+        const carRates = {
+            sedan: 5000,
+            suv: 7500,
+            luxury: 12000
+        };
+
+        function calculateTotalPrice(startTime, endTime, carType, services) {
+            const start = parseInt(startTime.split(':')[0]);
+            const end = parseInt(endTime.split(':')[0]);
+            const hours = (end - start + 24) % 24 || 24; // Handle midnight crossover
+            const basePrice = carRates[carType] * hours;
+            const servicePrice = services.reduce((sum, service) => sum + parseInt(service), 0);
+            return servicePrice; // Return only service price
+        }
+
+        function updateBookingsTable() {
+            bookingsBody.innerHTML = '';
+            bookings.forEach((booking, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'hover:bg-gray-50');
+                row.innerHTML = `
+                    <td class="p-2">${booking.customerName}</td>
+                    <td class="p-2">${booking.contactNumber}</td>
+                    <td class="p-2">${booking.carType}</td>
+                    <td class="p-2">${booking.startTime}</td>
+                    <td class="p-2">${booking.endTime}</td>
+                    <td class="p-2">${booking.date}</td>
+                    <td class="p-2">${booking.services.join(', ') || 'None'}</td>
+                    <td class="p-2">₦${booking.totalPrice.toLocaleString()}</td>
+                    <td class="p-2">${booking.paymentMethod}</td>
+                    <td class="p-2">
+                        <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" onclick="openCancelModal(${index})">Cancel</button>
+                    </td>
+                `;
+                bookingsBody.appendChild(row);
+            });
+        }
+
+        function openCancelModal(index) {
+            cancelIndex = index;
+            adminModal.classList.remove('hidden');
+        }
+
+        function removeBooking() {
+            if (adminPasswordInput.value === 'admin123') {
+                bookings.splice(cancelIndex, 1);
+                localStorage.setItem('carBookings', JSON.stringify(bookings));
+                updateBookingsTable();
+                adminModal.classList.add('hidden');
+                adminPasswordInput.value = '';
+                modalMessage.innerHTML = '<p class="text-green-500">Booking canceled successfully!</p>';
+                modal.classList.remove('hidden');
+            } else {
+                modalMessage.innerHTML = '<p class="text-red-500">Incorrect admin password!</p>';
+                modal.classList.remove('hidden');
+            }
+        }
+
+        bookCarBtn.addEventListener('click', () => {
+            const customerName = document.getElementById('customerName').value;
+            const contactNumber = document.getElementById('contactNumber').value;
+            const carType = document.getElementById('carType').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const bookingDate = document.getElementById('bookingDate').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const nightPickup = document.getElementById('nightPickup').checked ? 75000 : 0;
+            const pradoService = document.getElementById('pradoService').checked ? 130000 : 0;
+            const policeEscort = document.getElementById('policeEscort').checked ? 30000 : 0;
+            const services = [nightPickup, pradoService, policeEscort].filter(price => price > 0);
+
+            if (!customerName || !contactNumber || !carType || !startTime || !endTime || !bookingDate || !paymentMethod) {
+                modalMessage.innerHTML = '<p class="text-red-500">Please fill out all fields.</p>';
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            const startHour = parseInt(startTime.split(':')[0]);
+            const endHour = parseInt(endTime.split(':')[0]);
+            const isNightBooking = startHour >= 23 || startHour < 6 || (endHour >= 23 && endHour < 6);
+
+            if (bookingDate === '2025-06-14' && currentHour >= 23 && !isNightBooking) {
+                modalMessage.innerHTML = '<p class="text-red-500">Bookings for 7 AM–11 PM are closed. Please select a night booking (11:01 PM–6 AM).</p>';
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            if (!isNightBooking && (startHour < 7 || endHour > 23 || startHour > 23 || endHour < 7)) {
+                modalMessage.innerHTML = '<p class="text-red-500">Daytime bookings must be between 7 AM and 11 PM.</p>';
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            if (isNightBooking && (startHour < 23 || endHour > 6 || startHour >= 7 || endHour <= 23)) {
+                modalMessage.innerHTML = '<p class="text-red-500">Night bookings must be between 11:01 PM and 6 AM.</p>';
+                modal.classList.remove('hidden');
+                return;
+            }
+
+            const totalPrice = calculateTotalPrice(startTime, endTime, carType, services);
+            bookings.push({ customerName, contactNumber, carType, startTime, endTime, date: bookingDate, services: services.length ? services.map(price => {
+                if (price === 75000) return 'Night Pickup & Hotel Drop-off';
+                if (price === 130000) return '12 Hours Prado Transport Service';
+                if (price === 30000) return 'Police Escort';
+            }) : ['None'], totalPrice, paymentMethod });
+            localStorage.setItem('carBookings', JSON.stringify(bookings));
+            updateBookingsTable();
+            modalMessage.innerHTML = '<p class="text-green-500">Car booked successfully!</p>';
+            modal.classList.remove('hidden');
+            document.getElementById('customerName').value = '';
+            document.getElementById('contactNumber').value = '';
+            document.getElementById('carType').value = '';
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('paymentMethod').value = '';
+            document.getElementById('nightPickup').checked = false;
+            document.getElementById('pradoService').checked = false;
+            document.getElementById('policeEscort').checked = false;
+        });
+
+        closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        cancelModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        closeAdminModalBtn.addEventListener('click', () => adminModal.classList.add('hidden'));
+        cancelAdminModalBtn.addEventListener('click', () => adminModal.classList.add('hidden'));
+        confirmCancelBtn.addEventListener('click', removeBooking);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+        adminModal.addEventListener('click', (e) => {
+            if (e.target === adminModal) adminModal.classList.add('hidden');
+        });
+
+        // Load bookings on page load
+        document.addEventListener('DOMContentLoaded', updateBookingsTable);
+    </script>
+</body>
+</html>
