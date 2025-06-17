@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Management Dashboard</title>
+    <title>Trilogy_Homes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Custom styles to complement Tailwind */
+        /* Custom styles to complement Tailwind and Bootstrap */
         .sidebar {
             transition: transform 0.3s ease-in-out;
         }
@@ -67,6 +69,9 @@
         .dark-mode .notification-item {
             border-bottom-color: #4a5568;
         }
+        .hidden-by-role {
+            display: none !important;
+        }
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0 !important;
@@ -94,6 +99,32 @@
     </style>
 </head>
 <body class="flex h-screen bg-gray-100 overflow-hidden">
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Login</h2>
+                <button id="close-login-modal" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Username</label>
+                    <input type="text" id="login-username" class="w-full p-2 border rounded">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Password</label>
+                    <input type="password" id="login-password" class="w-full p-2 border rounded">
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button id="cancel-login" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+                    <button id="submit-login" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Sidebar -->
     <div id="sidebar" class="sidebar fixed inset-y-0 left-0 bg-gray-800 text-white w-64 md:w-64 md:translate-x-0 sidebar-hidden md:sidebar-hidden transition-transform duration-300 z-20">
         <div class="flex items-center p-4 border-b border-gray-700">
@@ -107,44 +138,50 @@
             <p class="text-xs uppercase text-gray-400 mb-2">Main Menu</p>
             <ul>
                 <li class="mb-1">
-                    <a href="index2.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent active" data-target="today-overview">
+                    <a href="index2.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="today-overview">
                         <i class="fas fa-chart-line mr-2"></i>
                         <span>Today Overview</span>
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="room-status">
+                    <a href="roomstatus.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="room-status">
                         <i class="fas fa-door-closed mr-2"></i>
                         <span>Room Status</span>
                         <i class="fas fa-angle-down ml-auto"></i>
                     </a>
                     <div class="pl-4 hidden">
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded" data-target="room-status">All Rooms</a>
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Available Rooms</a>
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Occupied Rooms</a>
-                        <a href="#" class="block p-2 text-sm hover:bg-gray-600 rounded">Maintenance</a>
+                        <a href="roomstatus.html" class="block p-2 text-sm hover:bg-gray-600 rounded" data-target="room-status">All Rooms</a>
+                        <a href="roomstatus.html" class="block p-2 text-sm hover:bg-gray-600 rounded">Available Rooms</a>
+                        <a href="roomstatus.html" class="block p-2 text-sm hover:bg-gray-600 rounded">Occupied Rooms</a>
+                        <a href="roomstatus.html" class="block p-2 text-sm hover:bg-gray-600 rounded">Maintenance</a>
                     </div>
                 </li>
                 <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="calendar">
+                    <a href="calendar.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="calendar">
                         <i class="fas fa-calendar-alt mr-2"></i>
                         <span>Booking Calendar</span>
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="guest-management">
+                    <a href="guestmanagement.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent hidden-by-role" data-target="guest-management" data-role="admin">
                         <i class="fas fa-users mr-2"></i>
                         <span>Guest Management</span>
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="booking.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="add-booking">
+                    <a href="booking.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent hidden-by-role" data-target="add-booking" data-role="admin staff">
                         <i class="fas fa-plus-circle mr-2"></i>
                         <span>Add New Booking</span>
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="car-rental.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="add-booking">
+                    <a href="viewnewbooking.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent hidden-by-role" data-target="add-booking" data-role="admin staff">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        <span>View New Booking</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="car-rental.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent hidden-by-role" data-target="add-booking" data-role="admin staff">
                         <i class="fas fa-car mr-2"></i>
                         <span>Car New Booking</span>
                     </a>
@@ -153,13 +190,13 @@
             <p class="text-xs uppercase text-gray-400 mt-4 mb-2">Settings</p>
             <ul>
                 <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="settings">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent hidden-by-role" data-target="settings" data-role="admin">
                         <i class="fas fa-cog mr-2"></i>
                         <span>Settings</span>
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="adduser.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent">
+                    <a href="adduser.html" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent hidden-by-role" data-target="profile" data-role="admin">
                         <i class="fas fa-user mr-2"></i>
                         <span>Profile</span>
                     </a>
@@ -171,9 +208,15 @@
                     </a>
                 </li>
                 <li class="mb-1">
-                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" data-target="logout">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent" id="logout" data-target="logout">
                         <i class="fas fa-sign-out-alt mr-2"></i>
                         <span>Logout</span>
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" class="menu-item flex items-center p-2 rounded hover:bg-gray-700 border-l-4 border-transparent hidden-by-role" data-target="webmail" data-role="admin staff">
+                        <i class="fas fa-envelope mr-2"></i>
+                        <span>Webmail</span>
                     </a>
                 </li>
             </ul>
@@ -203,7 +246,6 @@
                 </div>
                 <button id="export-report" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">
                     <i class="fas fa-download mr-2"></i>Export Report
-                    
                 </button>
                 
                 <button id="toggle-dark-mode" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 mr-2">
@@ -215,50 +257,84 @@
 
         <!-- Today Overview -->
         <div id="today-overview" class="page-content">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 overview-stats">
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-sign-in-alt text-xl"></i>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-4 overview-stats">
+                <div class="bg-white p-4 rounded-lg shadow hover:bg-gray-50">
+                    <a href="viewnewbooking.html">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-4">
+                                <i class="fas fa-sign-in-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold">8</h3>
+                                <p class="text-gray-600">Check-ins Today</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">8</h3>
-                            <p class="text-gray-600">Check-ins Today</p>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-sign-out-alt text-xl"></i>
+                <div class="bg-white p-4 rounded-lg shadow hover:bg-gray-50">
+                    <a href="viewnewbooking.html">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mr-4">
+                                <i class="fas fa-sign-out-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold">5</h3>
+                                <p class="text-gray-600">Check-outs Today</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">5</h3>
-                            <p class="text-gray-600">Check-outs Today</p>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-door-open text-xl"></i>
+                <div class="bg-white p-4 rounded-lg shadow hover:bg-gray-50">
+                    <a href="roomstatus.html">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-4">
+                                <i class="fas fa-door-open text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold">12</h3>
+                                <p class="text-gray-600">Available Rooms</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">12</h3>
-                            <p class="text-gray-600">Available Rooms</p>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center mr-4">
-                            <i class="fas fa-dollar-sign text-xl"></i>
+                <div class="bg-white p-4 rounded-lg shadow hover:bg-gray-50">
+                    <a href="account-page.html">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center mr-4">
+                                <i class="fas fa-dollar-sign text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold">$3,850</h3>
+                                <p class="text-gray-600">Today's Revenue</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-semibold">$3,850</h3>
-                            <p class="text-gray-600">Today's Revenue</p>
+                    </a>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow hover:bg-gray-50">
+                    <a href="viewnewbooking.html">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center mr-4">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold">3</h3>
+                                <p class="text-gray-600">Pending Bookings</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow hover:bg-gray-50">
+                    <a href="viewnewbooking.html">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mr-4">
+                                <i class="fas fa-tools text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold">2</h3>
+                                <p class="text-gray-600">Maintenance Alerts</p>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 dashboard-grid">
@@ -332,6 +408,46 @@
                 <div class="bg-white p-4 rounded-lg shadow">
                     <h2 class="text-lg font-semibold mb-2">Booking Distribution (Pie Chart)</h2>
                     <canvas id="bookingPieChart"></canvas>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow col-span-2">
+                    <h2 class="text-lg font-semibold mb-2">Profit vs Expenses (Bar Chart)</h2>
+                    <canvas id="profitExpensesChart"></canvas>
+                </div>
+            </div>
+            <!-- Financial Overview Cards -->
+            <div class="bg-white p-4 rounded-lg shadow mt-4">
+                <h2 class="text-lg font-semibold mb-2">Financial Overview</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow card">
+                        <div class="card-body text-center">
+                            <h3 class="text-lg font-semibold">Profit ($)</h3>
+                            <p id="profitValue" class="text-2xl font-bold text-green-500">3000</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow card">
+                        <div class="card-body text-center">
+                            <h3 class="text-lg font-semibold">Expenses ($)</h3>
+                            <p id="expensesValue" class="text-2xl font-bold text-red-500">2000</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow card">
+                        <div class="card-body text-center">
+                            <h3 class="text-lg font-semibold">Revenue ($)</h3>
+                            <p id="revenueValue" class="text-2xl font-bold text-blue-500">5000</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow card">
+                        <div class="card-body text-center">
+                            <h3 class="text-lg font-semibold">Investment Capital ($)</h3>
+                            <p id="investmentValue" class="text-2xl font-bold text-yellow-500">2500</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow card">
+                        <div class="card-body text-center">
+                            <h3 class="text-lg font-semibold">Future Forecast (%)</h3>
+                            <p id="forecastValue" class="text-2xl font-bold text-purple-500">10</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- Chat Box -->
@@ -604,6 +720,12 @@
             </button>
         </div>
 
+        <!-- Webmail -->
+        <div id="webmail" class="page-content hidden">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">Webmail</h1>
+            <a href="https://mail.google.com" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Open Webmail</a>
+        </div>
+
         <!-- Modal -->
         <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
             <div class="bg-white rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
@@ -662,6 +784,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Sidebar toggle
         const sidebar = document.getElementById('sidebar');
@@ -676,6 +799,82 @@
             sidebar.classList.add('sidebar-hidden');
         });
 
+        // Login System
+        const loginModal = document.getElementById('login-modal');
+        const closeLoginModal = document.getElementById('close-login-modal');
+        const cancelLogin = document.getElementById('cancel-login');
+        const submitLogin = document.getElementById('submit-login');
+        const loginUsername = document.getElementById('login-username');
+        const loginPassword = document.getElementById('login-password');
+        const logoutBtn = document.getElementById('logout');
+
+        // Simulated user database (replace with backend in production)
+        const users = {
+            'admin1': { password: 'adminpass', role: 'admin' },
+            'staff1': { password: 'staffpass', role: 'staff' },
+            'user1': { password: 'userpass', role: 'user' }
+        };
+
+        function showLoginModal() {
+            loginModal.classList.remove('hidden');
+        }
+
+        function hideLoginModal() {
+            loginModal.classList.add('hidden');
+        }
+
+        function updateUIForRole(role) {
+            const menuItems = document.querySelectorAll('.menu-item[data-role]');
+            menuItems.forEach(item => {
+                const allowedRoles = item.getAttribute('data-role').split(' ');
+                if (!allowedRoles.includes(role) && role !== 'admin') {
+                    item.classList.add('hidden-by-role');
+                } else {
+                    item.classList.remove('hidden-by-role');
+                }
+            });
+            pageContents.forEach(content => {
+                const target = content.getAttribute('id');
+                const item = document.querySelector(`.menu-item[data-target="${target}"]`);
+                if (item && item.getAttribute('data-role')) {
+                    const allowedRoles = item.getAttribute('data-role').split(' ');
+                    if (!allowedRoles.includes(role) && role !== 'admin') {
+                        content.classList.add('hidden-by-role');
+                    }
+                }
+            });
+        }
+
+        submitLogin.addEventListener('click', () => {
+            const username = loginUsername.value;
+            const password = loginPassword.value;
+            if (users[username] && users[username].password === password) {
+                localStorage.setItem('currentUser', JSON.stringify({ username, role: users[username].role }));
+                hideLoginModal();
+                updateUIForRole(users[username].role);
+            } else {
+                alert('Invalid credentials');
+            }
+        });
+
+        closeLoginModal.addEventListener('click', hideLoginModal);
+        cancelLogin.addEventListener('click', hideLoginModal);
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('currentUser');
+            showLoginModal();
+            updateUIForRole(null);
+        });
+
+        // Check if user is logged in on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                showLoginModal();
+            } else {
+                updateUIForRole(currentUser.role);
+            }
+        });
+
         // Content switching
         const menuItems = document.querySelectorAll('.menu-item');
         const pageContents = document.querySelectorAll('.page-content');
@@ -684,7 +883,6 @@
         menuItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 const target = item.getAttribute('data-target');
-
                 const href = item.getAttribute('href');
                 if (href && href !== '#') {
                     return;
@@ -736,6 +934,7 @@
         // Charts
         const bookingHistogram = document.getElementById('bookingHistogram').getContext('2d');
         const bookingPieChart = document.getElementById('bookingPieChart').getContext('2d');
+        const profitExpensesChart = document.getElementById('profitExpensesChart').getContext('2d');
 
         // Simulated booking data for 2025
         const bookings = [
@@ -744,7 +943,7 @@
             { month: 'March', apartment: 15, car: 8 },
             { month: 'April', apartment: 18, car: 10 },
             { month: 'May', apartment: 20, car: 12 },
-            { month: 'June', apartment: 8, car: 4 } // Up to June 15, 2025
+            { month: 'June', apartment: 8, car: 4 } // Up to June 17, 2025
         ];
 
         new Chart(bookingHistogram, {
@@ -792,6 +991,58 @@
             }
         });
 
+        // Profit vs Expenses Data
+        const profitExpensesData = [
+            { month: 'January', profit: 5000, expenses: 3000 },
+            { month: 'February', profit: 5500, expenses: 3200 },
+            { month: 'March', profit: 6000, expenses: 3500 },
+            { month: 'April', profit: 6500, expenses: 3800 },
+            { month: 'May', profit: 7000, expenses: 4000 },
+            { month: 'June', profit: 3000, expenses: 2000 } // Up to June 17, 2025
+        ];
+
+        const profitChart = new Chart(profitExpensesChart, {
+            type: 'bar',
+            data: {
+                labels: profitExpensesData.map(d => d.month),
+                datasets: [
+                    {
+                        label: 'Profit ($)',
+                        data: profitExpensesData.map(d => d.profit),
+                        backgroundColor: 'rgba(40, 167, 69, 0.6)', // Green
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Expenses ($)',
+                        data: profitExpensesData.map(d => d.expenses),
+                        backgroundColor: 'rgba(220, 53, 69, 0.6)', // Red
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+
+        // Dynamically update financial overview cards
+        function updateFinancialOverview() {
+            const juneData = profitExpensesData.find(d => d.month === 'June');
+            if (juneData) {
+                document.getElementById('profitValue').textContent = juneData.profit;
+                document.getElementById('expensesValue').textContent = juneData.expenses;
+                document.getElementById('revenueValue').textContent = juneData.profit + 2000; // Simulated revenue as profit + additional income
+                document.getElementById('investmentValue').textContent = (juneData.profit * 0.5).toFixed(0); // 50% of profit as investment
+                document.getElementById('forecastValue').textContent = '10'; // Fixed 10% forecast for June
+            }
+        }
+
+        // Initial update
+        document.addEventListener('DOMContentLoaded', updateFinancialOverview);
+
         // Chat and Notification
         const notificationBar = document.getElementById('notification-bar');
         const chatSender = document.getElementById('chat-sender');
@@ -822,7 +1073,7 @@
             const message = chatMessage.value.trim();
             if (sender && message) {
                 const now = new Date();
-                const timestamp = now.toLocaleTimeString();
+                const timestamp = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }); // e.g., "06:31 AM" WAT
                 const newMessage = { sender, message, timestamp };
                 messages.push(newMessage);
                 localStorage.setItem('chatMessages', JSON.stringify(messages));
